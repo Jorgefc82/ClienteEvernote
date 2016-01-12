@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ClienteEvernote</string>
+    <string name="boton_loggin">Iniciar sesión</string>
+    <string name="title_activity_notas">Notas</string>
+</resources>
