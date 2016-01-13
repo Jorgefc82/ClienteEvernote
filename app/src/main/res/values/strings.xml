@@ -4,9 +4,16 @@
     <string name="title_activity_notas">Lista de Notas</string>
     <string name="cabecera_nota">Título de la nota:</string>
     <string name="imposible_traer_datos">No se han podido recuperar datos desde Evernote,
-        compruebe su conexión</string>
+        por favor compruebe su conexión y vuelva a pulsar sobre el botón para refrescar que se
+        encuentra ubicado en la barra superior de la aplicación.
+    </string>
     <string name="lista_notas_vacia">No hay niguna nota guardada en su cuenta Evernote</string>
     <string name="aceptar">Aceptar</string>
     <string name="orden_por_fecha">Ordenar por fecha</string>
     <string name="orden_alfabetico">Ordenar alfabeticamente</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+    <string name="autentificado">Se ha realizado autentificación correctamente</string>
+    <string name="error_acceso_aut">No se puede acceder a autentificación, por favor compruebe su
+        conexión
+    </string>
 </resources>

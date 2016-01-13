@@ -7,6 +7,9 @@
     <item android:id="@+id/ordenalfabetico"
         android:title="@string/orden_alfabetico"
         android:orderInCategory="2"/>
+    <item android:id="@+id/cerrarsesion"
+        android:title="@string/cerrar_sesion"
+        android:orderInCategory="3"/>
     <item android:id="@+id/refrescar"
         android:title="@string/orden_alfabetico"
         app:showAsAction="always"

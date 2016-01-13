@@ -3,6 +3,7 @@ package com.jorgefc82.clienteevernote;
  * Created by Jorgefc82.
  */
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,6 +32,7 @@ public class NotasActivity extends AppCompatActivity {
     private String TAG_GETNOTAS= "GetNotas";
     private String TAG_SNACKBAR= "SnackBar";
     private boolean ordenalfabetico;
+    private EvernoteNoteStoreClient noteStoreClient;
 
 
     @Override
@@ -39,7 +41,10 @@ public class NotasActivity extends AppCompatActivity {
         setContentView(R.layout.activity_notas);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //Variable que servirá para ordenar la lista siempre se inicializa para orden por fecha
+        // Se inicializa variable notestoreclient
+        noteStoreClient = EvernoteSession.getInstance()
+                .getEvernoteClientFactory().getNoteStoreClient();
+        // Variable que servirá para ordenar la lista siempre se inicializa para orden por fecha
         ordenalfabetico =false;
         FloatingActionButton fabcrearnota = (FloatingActionButton) findViewById(R.id.fab_crearnota);
         /*Botón crear nota para implementar en siguientes commits*/
@@ -51,22 +56,56 @@ public class NotasActivity extends AppCompatActivity {
             }
         });
         //Se itentan recuperar notas en onCreate
-        getNotas();
+        gestionaListaDeNotas();
     }
 
-    /*Se crea hilo en 2º plano que tratará de recoger notas*/
-    private void getNotas() {
+    /*Menú de opciones se infla*/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_notas, menu);
+        return true;
+    }
+
+    /*En las opciones del menú desplegable se cambia valor de la variable global
+      que determina el orden de la lista y se refresca la lista de notas en cada acción*/
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.ordenporfecha:
+                ordenalfabetico=false;
+                gestionaListaDeNotas();
+                return true;
+            case R.id.ordenalfabetico:
+                ordenalfabetico=true;
+                gestionaListaDeNotas();
+                return true;
+            case R.id.refrescar:
+                gestionaListaDeNotas();
+                return true;
+            case R.id.cerrarsesion:
+                //Cierra sesión y vuelve a conducir a pantalla de login
+                cerrarSesion();
+                this.finish();
+                Intent login = new Intent(this, LoginActivity.class);
+                login.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                this.startActivity(login);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /*Método crea hilo en 2º plano que tratará de recoger lista  de notas de Evernote*/
+    private void gestionaListaDeNotas() {
         new Thread() {
             @Override
             public void run() {
                 try {
-                    EvernoteNoteStoreClient noteStoreClient = EvernoteSession.getInstance()
-                            .getEvernoteClientFactory().getNoteStoreClient();
                     noteStoreClient.findNotesAsync(new NoteFilter(), 0, 99999,
                             new EvernoteCallback<NoteList>() {
                         @Override
                         public void onSuccess(NoteList result) {
-                            getListaDeNotas(result);
+                            gestionaListaDeNotas(result);
                         }
                         @Override
                         public void onException(Exception exception) {
@@ -86,33 +125,35 @@ public class NotasActivity extends AppCompatActivity {
                     Log.e(TAG_GETNOTAS, "Excepción recuperando notas");
                 }
             }
-        }
-        .start();
+        }.start();
     }
 
-    /*Método para recuperar Lista de notas de Evernote*/
-    private void getListaDeNotas(NoteList notas) {
+    /*Método que gestionará los datos obtenidos de la lista de notas y como se dibujarán en la
+     interfaz*/
+    private void gestionaListaDeNotas(NoteList notas) {
+        /*Se declaran instancias*/
+        RecyclerView recycler;
+        RecyclerView.Adapter adapter;
+        RecyclerView.LayoutManager lManager;
+        // Se obtiene el Recycler
+        recycler = (RecyclerView) findViewById(R.id.lista_notas);
+        recycler.setHasFixedSize(true);
+        // Se usa un administrador para LinearLayout
+        lManager = new LinearLayoutManager(this);
+        recycler.setLayoutManager(lManager);
+        // Se declara array de Notes
         List<Note> listadonotas = notas.getNotes();
+        // Se declara array de Strings que recogerá los títulos
         List<String> titulos_notas = new ArrayList<>();
         for(Note nota : listadonotas) {
             titulos_notas.add(nota.getTitle());
-            //Log.v(TAG_GETNOTAS, nota.getTitle());
         }
-        // Si se han recogido notas se rellena recycler view
+        // Si se han recogido notas se rellenará recycler view con títulos
         if (!titulos_notas.isEmpty()) {
-            /*Se declaran instancias*/
-            RecyclerView recycler;
-            RecyclerView.Adapter adapter;
-            RecyclerView.LayoutManager lManager;
-            // Se obtiene el Recycler
-            recycler = (RecyclerView) findViewById(R.id.lista_notas);
-            recycler.setHasFixedSize(true);
-            // Usar un administrador para LinearLayout
-            lManager = new LinearLayoutManager(this);
-            recycler.setLayoutManager(lManager);
+            // Se hace visible el recycler por si se hubiera ocultado previamente
+            recycler.setVisibility(View.VISIBLE);
             /* Si orden alfabético es verdadero se cambia el orden
-                si no se quedará por defecto ordenado por fecha de la nota
-             */
+                si no se quedará por defecto ordenado por fecha de la nota */
             if (ordenalfabetico) {
                 ordenaListaAfabeticamente(titulos_notas);
             }
@@ -120,6 +161,9 @@ public class NotasActivity extends AppCompatActivity {
             adapter = new AdaptadorListaNotas(titulos_notas);
             recycler.setAdapter(adapter);
         }else{
+            /* Si no hay datos en la lista de títulos de se oculta el recyclerView en
+                pantalla y se muestra mensaje en snackbar */
+            recycler.setVisibility(View.GONE);
             Snackbar.make(findViewById(android.R.id.content),
                     R.string.lista_notas_vacia, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.aceptar, new View.OnClickListener() {
@@ -136,30 +180,10 @@ public class NotasActivity extends AppCompatActivity {
         java.util.Collections.sort(lista);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_notas, menu);
-        return true;
-    }
-
-    /*En las opciones del menú desplegable se cambia valor de la variable global
-      que determina el orden de la lista y se refresca la lista de notas en cada acción*/
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.ordenporfecha:
-                ordenalfabetico=false;
-                getNotas();
-                return true;
-            case R.id.ordenalfabetico:
-                ordenalfabetico=true;
-                getNotas();
-                return true;
-            case R.id.refrescar:
-                getNotas();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+    /*Método para cerrar la sesión actual*/
+    private void cerrarSesion (){
+        if(EvernoteSession.getInstance().isLoggedIn()){
+            EvernoteSession.getInstance().logOut();
         }
     }
 }
