@@ -14,15 +14,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<!-- Codigo para que se mantenga el estado de la actividad al girar la pantalla en configChanges -->
         <activity
             android:name=".NotasActivity"
             android:label="@string/title_activity_notas"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <!-- Se declaran activities de la API de Evernote, tal y como se indica en README de la API -->
+        <activity android:name="com.evernote.client.android.EvernoteOAuthActivity"/>
+        <activity android:name="com.evernote.client.android.login.EvernoteLoginActivity"/>
     </application>
-
-    <!-- Se declaran activities de la API de Evernote, tal y como se indica en README de la API -->
-    <activity android:name="com.evernote.client.android.EvernoteOAuthActivity"/>
-    <activity android:name="com.evernote.client.android.login.EvernoteLoginActivity"/>
-
 </manifest>
