@@ -57,6 +57,16 @@ public class HandleXML {
                                 temporal = text;
                                 descripcion = descripcion +"\n"+temporal;
                             }
+                        }else{
+                    /* Se crea esta condición porque se ha comprobado que las notas guardadas
+                    * desde la app no van entre divs, de la manera que si no hay nada en la variable
+                    * descripción al llegar a la etiqueta en-note, solo se debe recoger el contenido
+                    * de dicha etiqueta*/
+                            if (name.equals("en-note")){
+                                if(descripcion.equals("")){
+                                    descripcion =text;
+                                }
+                            }
                         }
                         break;
                 }

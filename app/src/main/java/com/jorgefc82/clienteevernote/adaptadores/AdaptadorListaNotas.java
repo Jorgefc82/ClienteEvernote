@@ -72,6 +72,8 @@ public class AdaptadorListaNotas extends RecyclerView.Adapter<AdaptadorListaNota
                     /*Se parsea el string obtenido en formato xml y se parsea para obtener tan solo
                         el texto del cuerpo de la nota
                      */
+                                    /*Log.i(TAG_ADAPTADOR, "Recuperando contenido " +
+                                            result);*/
                                     String xml_content = result.getContent();
                                     parseadorXML = new HandleXML(xml_content);
                                     parseadorXML.fetchXML();

@@ -36,7 +36,7 @@ public class NotasActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notas);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_lista_notas);
         setSupportActionBar(toolbar);
         // Se inicializa variable notestoreclient
         noteStoreClient = EvernoteSession.getInstance()
@@ -44,16 +44,25 @@ public class NotasActivity extends AppCompatActivity {
         // Se instancia notefilter para establecer filtros en la recogida de los datos
         notefilter = new NoteFilter();
         FloatingActionButton fabcrearnota = (FloatingActionButton) findViewById(R.id.fab_crearnota);
-        /*Botón crear nota para implementar en siguientes commits*/
+        /*Botón crear nota lanza DetallesNotaActivity y le pasa booleano para que reconozca
+        * que ha sido lanzada desde botón crear nota*/
         fabcrearnota.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                crearNota();
             }
         });
         //Se itentan recuperar notas en onCreate
         recogeListaDeNotas(notefilter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Comprobamos si el resultado de la segunda actividad es "RESULT_OK".
+        if (resultCode == RESULT_OK) {
+            recogeListaDeNotas(notefilter);
+        }
     }
 
     /*Menú de opciones se infla*/
@@ -68,7 +77,8 @@ public class NotasActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.ordenporfecha:
-            // se limpia notefilter ya que por defecto ordena por fecha de creación o actualización
+            /* se limpia notefilter ya que por defecto ordena por fecha de creación o actualización
+               colocando primero las más antiguas */
                 notefilter.clear();
                 recogeListaDeNotas(notefilter);
                 return true;
@@ -180,5 +190,18 @@ public class NotasActivity extends AppCompatActivity {
         notefilter.clear();
         notefilter.setAscending(true);
         notefilter.setOrder(5);
+    }
+
+    /*Método que lanza crear nota*/
+    private void crearNota (){
+        int CREANOTA=0;
+        /*Lanza DetallesNotaActivity con startActivityForResult para que se devuelta resultado al
+        terminar la actividad y le pasa booleano para que reconozca que ha sido lanzada desde
+         botón crear nota y se determine comportamiento de la actividad*/
+        Bundle b = new Bundle();
+        Intent crearnota = new Intent(this, DetallesNotaActivity.class);
+        b.putBoolean("crearnota", true);
+        crearnota.putExtras(b);
+        startActivityForResult(crearnota,CREANOTA);
     }
 }

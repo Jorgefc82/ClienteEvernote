@@ -17,4 +17,10 @@
         conexión
     </string>
     <string name="title_activity_detalles_nota">Detalles Nota</string>
+    <string name="contenido_nota">Contenido:</string>
+    <string name="crear_nota">Crear Nota</string>
+    <string name="nota_creada">nota creada con éxito</string>
+    <string name="no_se_puede_guardar">No se puede guardar nota si el campo título
+        está vacio
+    </string>
 </resources>

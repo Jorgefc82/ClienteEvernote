@@ -23,7 +23,7 @@
         card_view:cardUseCompatPadding="true">
 
         <ScrollView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/scrollView" >
 
@@ -45,11 +45,25 @@
                     android:textSize="@dimen/texto_titulo"
                     android:textColor="@android:color/primary_text_light"/>
 
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:visibility="gone"
+                    android:id="@+id/editText_titulo" />
+
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/contenidodetalles"
                     android:textSize="@dimen/texto_contenido" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:visibility="gone"
+                    android:id="@+id/editText_contenido" />
 
             </LinearLayout>
         </ScrollView>
