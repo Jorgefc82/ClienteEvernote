@@ -1,4 +1,4 @@
-package com.jorgefc82.clienteevernote;
+package com.jorgefc82.clienteevernote.activities;
 /**
  * Created by Jorgefc82.
  */
@@ -15,24 +15,21 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.evernote.client.android.EvernoteSession;
 import com.evernote.client.android.asyncclient.EvernoteCallback;
 import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
 import com.evernote.edam.notestore.NoteFilter;
 import com.evernote.edam.notestore.NoteList;
-import com.evernote.edam.type.Note;
+import com.jorgefc82.clienteevernote.R;
 import com.jorgefc82.clienteevernote.adaptadores.AdaptadorListaNotas;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class NotasActivity extends AppCompatActivity {
 
-    private String TAG_GETNOTAS= "GetNotas";
-    private String TAG_SNACKBAR= "SnackBar";
-    private boolean ordenalfabetico;
+    private String TAG_GETNOTAS= "Log GetNotas";
     private EvernoteNoteStoreClient noteStoreClient;
+    private NoteFilter notefilter;
 
 
     @Override
@@ -44,8 +41,8 @@ public class NotasActivity extends AppCompatActivity {
         // Se inicializa variable notestoreclient
         noteStoreClient = EvernoteSession.getInstance()
                 .getEvernoteClientFactory().getNoteStoreClient();
-        // Variable que servirá para ordenar la lista siempre se inicializa para orden por fecha
-        ordenalfabetico =false;
+        // Se instancia notefilter para establecer filtros en la recogida de los datos
+        notefilter = new NoteFilter();
         FloatingActionButton fabcrearnota = (FloatingActionButton) findViewById(R.id.fab_crearnota);
         /*Botón crear nota para implementar en siguientes commits*/
         fabcrearnota.setOnClickListener(new View.OnClickListener() {
@@ -56,7 +53,7 @@ public class NotasActivity extends AppCompatActivity {
             }
         });
         //Se itentan recuperar notas en onCreate
-        gestionaListaDeNotas();
+        recogeListaDeNotas(notefilter);
     }
 
     /*Menú de opciones se infla*/
@@ -66,21 +63,21 @@ public class NotasActivity extends AppCompatActivity {
         return true;
     }
 
-    /*En las opciones del menú desplegable se cambia valor de la variable global
-      que determina el orden de la lista y se refresca la lista de notas en cada acción*/
+    /*Acciones en menú de opciones*/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.ordenporfecha:
-                ordenalfabetico=false;
-                gestionaListaDeNotas();
+            // se limpia notefilter ya que por defecto ordena por fecha de creación o actualización
+                notefilter.clear();
+                recogeListaDeNotas(notefilter);
                 return true;
             case R.id.ordenalfabetico:
-                ordenalfabetico=true;
-                gestionaListaDeNotas();
+                ordenAlfabetico();
+                recogeListaDeNotas(notefilter);
                 return true;
             case R.id.refrescar:
-                gestionaListaDeNotas();
+                recogeListaDeNotas(notefilter);
                 return true;
             case R.id.cerrarsesion:
                 //Cierra sesión y vuelve a conducir a pantalla de login
@@ -96,29 +93,29 @@ public class NotasActivity extends AppCompatActivity {
     }
 
     /*Método crea hilo en 2º plano que tratará de recoger lista  de notas de Evernote*/
-    private void gestionaListaDeNotas() {
+    private void recogeListaDeNotas(final NoteFilter orden) {
         new Thread() {
             @Override
             public void run() {
                 try {
-                    noteStoreClient.findNotesAsync(new NoteFilter(), 0, 99999,
+                    noteStoreClient.findNotesAsync(orden, 0, 99999,
                             new EvernoteCallback<NoteList>() {
                         @Override
                         public void onSuccess(NoteList result) {
-                            gestionaListaDeNotas(result);
+                            conectaListadeNotas(result);
                         }
                         @Override
                         public void onException(Exception exception) {
                             Log.e(TAG_GETNOTAS, "Excepción recuperando notas");
-                            Snackbar.make(findViewById(android.R.id.content),
+                            Snackbar exceplista = Snackbar.make(findViewById(android.R.id.content),
                                     R.string.imposible_traer_datos, Snackbar.LENGTH_INDEFINITE)
                                     .setAction(R.string.aceptar, new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
-                                            Log.v(TAG_SNACKBAR, "Pulsada acción snackbar!");
                                         }
-                                    })
-                            .show();
+                                    });
+                            lineasSnackBar(exceplista);
+                            exceplista.show();
                         }
                     });
                 } catch (Exception e) {
@@ -128,9 +125,8 @@ public class NotasActivity extends AppCompatActivity {
         }.start();
     }
 
-    /*Método que gestionará los datos obtenidos de la lista de notas y como se dibujarán en la
-     interfaz*/
-    private void gestionaListaDeNotas(NoteList notas) {
+    /*Método que conecta los datos de la lista con el adaptador y se lo pasa al recycler*/
+    private void conectaListadeNotas (NoteList notas) {
         /*Se declaran instancias*/
         RecyclerView recycler;
         RecyclerView.Adapter adapter;
@@ -141,43 +137,27 @@ public class NotasActivity extends AppCompatActivity {
         // Se usa un administrador para LinearLayout
         lManager = new LinearLayoutManager(this);
         recycler.setLayoutManager(lManager);
-        // Se declara array de Notes
-        List<Note> listadonotas = notas.getNotes();
-        // Se declara array de Strings que recogerá los títulos
-        List<String> titulos_notas = new ArrayList<>();
-        for(Note nota : listadonotas) {
-            titulos_notas.add(nota.getTitle());
-        }
-        // Si se han recogido notas se rellenará recycler view con títulos
-        if (!titulos_notas.isEmpty()) {
+        // Si se han recogido notas se rellenará recycler view
+        if (!notas.getNotes().isEmpty()) {
             // Se hace visible el recycler por si se hubiera ocultado previamente
             recycler.setVisibility(View.VISIBLE);
-            /* Si orden alfabético es verdadero se cambia el orden
-                si no se quedará por defecto ordenado por fecha de la nota */
-            if (ordenalfabetico) {
-                ordenaListaAfabeticamente(titulos_notas);
-            }
-            // Se crea un nuevo adaptador y se le pasan los títulos de las notas
-            adapter = new AdaptadorListaNotas(titulos_notas);
+            // Se crea un nuevo adaptador y se le pasa lista de notas
+            adapter = new AdaptadorListaNotas(notas);
             recycler.setAdapter(adapter);
         }else{
             /* Si no hay datos en la lista de títulos de se oculta el recyclerView en
                 pantalla y se muestra mensaje en snackbar */
             recycler.setVisibility(View.GONE);
-            Snackbar.make(findViewById(android.R.id.content),
+            Snackbar snacklistavacia = Snackbar.make(findViewById(android.R.id.content),
                     R.string.lista_notas_vacia, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.aceptar, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            Log.v(TAG_SNACKBAR, "Pulsada acción snackbar!");
-                        }
-                    })
-            .show();
+                                                   }
+                    });
+            lineasSnackBar(snacklistavacia);
+            snacklistavacia.show();
         }
-    }
-    /*Método para ordenar lista de notas alfabéticamente*/
-    private void ordenaListaAfabeticamente (List<String> lista){
-        java.util.Collections.sort(lista);
     }
 
     /*Método para cerrar la sesión actual*/
@@ -185,5 +165,20 @@ public class NotasActivity extends AppCompatActivity {
         if(EvernoteSession.getInstance().isLoggedIn()){
             EvernoteSession.getInstance().logOut();
         }
+    }
+
+    /*Método para aumentar líneas máximas de la snackbar*/
+    private void lineasSnackBar (Snackbar snackbar){
+        View snackbarView = snackbar.getView();
+        TextView textView = (TextView) snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        // permite 10 líneas como máximo par así evitar que se corten los textos
+        textView.setMaxLines(10);
+    }
+
+    /* Método establece orden alfabético en noteFilter */
+    private void ordenAlfabetico(){
+        notefilter.clear();
+        notefilter.setAscending(true);
+        notefilter.setOrder(5);
     }
 }

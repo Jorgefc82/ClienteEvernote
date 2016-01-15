@@ -5,5 +5,8 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="margen_superior_lista">4dp</dimen>
     <dimen name="margen_inferior_lista">4dp</dimen>
+    <dimen name="margen_lateral_detalles">8dp</dimen>
     <dimen name="margen_sup_textos_cardview">12dp</dimen>
+    <dimen name="texto_titulo">24sp</dimen>
+    <dimen name="texto_contenido">20sp</dimen>
 </resources>

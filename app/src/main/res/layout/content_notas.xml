@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="@dimen/margen_superior_lista"
+    android:paddingLeft="@dimen/margen_lateral_detalles"
+    android:paddingRight="@dimen/margen_lateral_detalles"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.herprogramacion.alquileres.ActividadListaAlquileres"
     tools:showIn="@layout/activity_notas" />

@@ -8,21 +8,27 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity">
+        <activity android:name=".activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!-- Codigo para que se mantenga el estado de la actividad al girar la pantalla en configChanges -->
+        <!-- Codigo para que se mantenga el estado de la actividad al girar la pantalla en configChanges -->
         <activity
-            android:name=".NotasActivity"
-            android:label="@string/title_activity_notas"
+            android:name=".activities.NotasActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_notas"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <!-- Se declaran activities de la API de Evernote, tal y como se indica en README de la API -->
-        <activity android:name="com.evernote.client.android.EvernoteOAuthActivity"/>
-        <activity android:name="com.evernote.client.android.login.EvernoteLoginActivity"/>
+        <activity android:name="com.evernote.client.android.EvernoteOAuthActivity" />
+        <activity android:name="com.evernote.client.android.login.EvernoteLoginActivity" />
+        <activity
+            android:name=".activities.DetallesNotaActivity"
+            android:label="@string/title_activity_detalles_nota"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
+
 </manifest>

@@ -1,4 +1,4 @@
-package com.jorgefc82.clienteevernote;
+package com.jorgefc82.clienteevernote.activities;
 /**
  * Created by Jorgefc82.
  */
@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.evernote.client.android.EvernoteSession;
 import com.evernote.client.android.login.EvernoteLoginFragment;
+import com.jorgefc82.clienteevernote.R;
 
 /*Se implementa interface EvernoteLoginFragment.ResultCallback*/
 public class LoginActivity extends AppCompatActivity implements EvernoteLoginFragment.ResultCallback{

@@ -19,8 +19,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="@dimen/margen_inferior_lista"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingLeft="@dimen/margen_lateral_detalles"
+            android:paddingRight="@dimen/margen_lateral_detalles"
             android:paddingTop="@dimen/margen_sup_textos_cardview">
 
 
