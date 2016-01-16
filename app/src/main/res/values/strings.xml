@@ -23,4 +23,10 @@
     <string name="no_se_puede_guardar">No se puede guardar nota si el campo título
         está vacio
     </string>
+    <string name="no_se_recupera_contenido">No se puede recuperar contenido de la nota,
+        favor compruebe su conexión
+    </string>
+    <string name="error_crea_nota">Se ha producido un error creando la nota, por favor compruebe
+        su conexión
+    </string>
 </resources>

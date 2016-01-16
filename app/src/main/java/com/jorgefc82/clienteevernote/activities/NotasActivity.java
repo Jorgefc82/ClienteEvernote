@@ -2,7 +2,6 @@ package com.jorgefc82.clienteevernote.activities;
 /**
  * Created by Jorgefc82.
  */
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -23,7 +22,7 @@ import com.evernote.client.android.asyncclient.EvernoteNoteStoreClient;
 import com.evernote.edam.notestore.NoteFilter;
 import com.evernote.edam.notestore.NoteList;
 import com.jorgefc82.clienteevernote.R;
-import com.jorgefc82.clienteevernote.adaptadores.AdaptadorListaNotas;
+import com.jorgefc82.clienteevernote.adapters.AdaptadorListaNotas;
 
 public class NotasActivity extends AppCompatActivity {
 
@@ -102,37 +101,29 @@ public class NotasActivity extends AppCompatActivity {
         }
     }
 
-    /*Método crea hilo en 2º plano que tratará de recoger lista  de notas de Evernote*/
+    /*Método que recoge de forma asíncorna lista  de notas de Evernote*/
     private void recogeListaDeNotas(final NoteFilter orden) {
-        new Thread() {
+        noteStoreClient.findNotesAsync(orden, 0, 99999,
+                new EvernoteCallback<NoteList>() {
             @Override
-            public void run() {
-                try {
-                    noteStoreClient.findNotesAsync(orden, 0, 99999,
-                            new EvernoteCallback<NoteList>() {
-                        @Override
-                        public void onSuccess(NoteList result) {
-                            conectaListadeNotas(result);
-                        }
-                        @Override
-                        public void onException(Exception exception) {
-                            Log.e(TAG_GETNOTAS, "Excepción recuperando notas");
-                            Snackbar exceplista = Snackbar.make(findViewById(android.R.id.content),
-                                    R.string.imposible_traer_datos, Snackbar.LENGTH_INDEFINITE)
-                                    .setAction(R.string.aceptar, new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                        }
-                                    });
-                            lineasSnackBar(exceplista);
-                            exceplista.show();
-                        }
-                    });
-                } catch (Exception e) {
-                    Log.e(TAG_GETNOTAS, "Excepción recuperando notas");
-                }
+            public void onSuccess(NoteList result) {
+                conectaListadeNotas(result);
             }
-        }.start();
+            @Override
+            public void onException(Exception exception) {
+                Log.e(TAG_GETNOTAS, "Excepción recuperando notas");
+                Snackbar exceplista = Snackbar.make(findViewById(android.R.id.content),
+                        R.string.imposible_traer_datos,
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.aceptar, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                            }
+                        });
+                lineasSnackBar(exceplista);
+                exceplista.show();
+            }
+        });
     }
 
     /*Método que conecta los datos de la lista con el adaptador y se lo pasa al recycler*/

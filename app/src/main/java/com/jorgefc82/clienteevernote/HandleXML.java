@@ -55,7 +55,13 @@ public class HandleXML {
                              */
                             if (!temporal.equals(text)){
                                 temporal = text;
-                                descripcion = descripcion +"\n"+temporal;
+                             /*Se controla si se está en la primera línea para no
+                                introducir un salto de línea de inicio*/
+                                if (descripcion.equals("")){
+                                    descripcion=temporal;
+                                }else {
+                                    descripcion = descripcion + "\n" + temporal;
+                                }
                             }
                         }else{
                     /* Se crea esta condición porque se ha comprobado que las notas guardadas

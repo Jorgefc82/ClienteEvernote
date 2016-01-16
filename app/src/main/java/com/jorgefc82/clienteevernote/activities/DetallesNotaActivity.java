@@ -1,5 +1,6 @@
 package com.jorgefc82.clienteevernote.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -76,13 +77,13 @@ public class DetallesNotaActivity extends AppCompatActivity {
         fabguardarnota.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                guardaNota(edita_titulo,edita_contenido);
+                guardaNota(edita_titulo,edita_contenido,DetallesNotaActivity.this);
             }
         });
     }
 
     /*Método que guarda la nota en NoteStore del cliente*/
-    private void guardaNota (EditText editatitulo, EditText  editacontenido){
+    private void guardaNota (EditText editatitulo, EditText  editacontenido, final Activity activity){
         final String TAG_GUARDARNOTA= "Guarda notas";
         // Se requiere campo título para guardar nota, si no se muestra toast
         if(String.valueOf(editatitulo.getText()).equals("")){
@@ -99,20 +100,22 @@ public class DetallesNotaActivity extends AppCompatActivity {
             noteStoreClient.createNoteAsync(note, new EvernoteCallback<Note>() {
                 @Override
                 public void onSuccess(Note result) {
-                    Toast.makeText(getApplicationContext(), result.getTitle() + " " +
-                            getString(R.string.nota_creada), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), result.getTitle() + " "
+                            + getString(R.string.nota_creada), Toast.LENGTH_LONG).show();
+            /*Se finaliza la actividad una vez guardada la nota y se devuelve resultado true a
+            NotasActivity para que se actualice la vista con la nueva nota creada*/
+                    i.putExtra("RESULTADO", true);
+                    setResult(RESULT_OK, i);
+                    activity.finish();
                 }
 
                 @Override
                 public void onException(Exception exception) {
                     Log.e(TAG_GUARDARNOTA, "Error creando nota", exception);
+                    Toast.makeText(getApplicationContext(), R.string.error_crea_nota,
+                            Toast.LENGTH_LONG).show();
                 }
             });
-            /*Se finaliza la actividad una vez guardada la nota y se devuelve resultado true a
-            NotasActivity para que se actualice la vista con la nueva nota creada*/
-            i.putExtra("RESULTADO", true);
-            setResult(RESULT_OK, i);
-            this.finish();
         }
     }
 }
